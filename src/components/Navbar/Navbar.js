@@ -3,8 +3,14 @@
 import React, { Component } from 'react';
 import './Navbar.scss';
 
-class Navbar extends Component {
-  render() {
+type Props = {
+  gameState: string,
+  handleEndGame: () => void,
+}
+
+
+class Navbar extends Component<Props> {
+  render(): React$Element<"nav"> {
     return (
       <nav className="navbar navbar-inverse navbar-fixed-top" role="navigation">
         <div className="container">

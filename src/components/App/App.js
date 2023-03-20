@@ -8,10 +8,15 @@ import { removeHash } from '../../data/helperFuncs';
 
 const options = {};
 
-class App extends Component {
-  state = { gameState: 'chooseCharacters' };
+type Props = {};
 
-  startGame = () => {
+type State = {
+  gameState: string,
+};
+
+class App extends Component<Props, State> {
+  state: State = { gameState: 'chooseCharacters' };
+  startGame: (() => void) = () => {
     this.setState({gameState: 'game'});
   }
 
@@ -19,22 +24,7 @@ class App extends Component {
     this.setState({gameState: 'chooseCharacters'});
   }
 
-  componentWillUpdate(nextProps, nextState) {
-    // This is primarily for demo site purposes. Hides #footer when game is on.
-    if(document.getElementById('footer')) {
-      if(nextState.gameState=='chooseCharacters')
-        document.getElementById('footer').style.display = "block";
-      else
-        document.getElementById('footer').style.display = "none";
-    }
-  }
-
-  componentWillMount() {
-    if(document.getElementById('footer'))
-      document.getElementById('footer').style.display = "block";
-  }
-
-  render() {
+  render(): React$Element<"div"> {
     return (
       <div>
         <Navbar
