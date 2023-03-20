@@ -1,5 +1,7 @@
+// @flow
+
 import React, { Component } from 'react';
-import './App.scss';
+import './app.scss';
 import Navbar from '../Navbar/Navbar';
 import GameContainer from '../GameContainer/GameContainer';
 import { removeHash } from '../../data/helperFuncs';
@@ -13,7 +15,7 @@ class App extends Component {
     this.setState({gameState: 'game'});
   }
 
-  endGame = () => {
+  endGame: (() => void) = () => {
     this.setState({gameState: 'chooseCharacters'});
   }
 
