@@ -1,3 +1,5 @@
+// @flow
+
 import React, { Component } from "react";
 import { kanaDictionary } from "../../data/kanaDictionary";
 import { quizSettings } from "../../data/quizSettings";
@@ -10,8 +12,25 @@ import {
 } from "../../data/helperFuncs";
 import "./Question.scss";
 
-class Question extends Component {
-  state = {
+type Props = {
+  decidedGroups: Array<string>,
+  stage: number,
+  allowedAnswers: () => {},
+  handleStageUp: () => void,
+  isLocked: boolean,
+};
+
+type State = {
+  previousQuestion: string | Array<string>,
+  previousAnswer: string,
+  currentAnswer: string,
+  currentQuestion: Array<string>,
+  answerOptions: Array<string>,
+  stageProgress: number,
+};
+
+class Question extends Component<Props, State> {
+  state: State = {
     previousQuestion: [],
     previousAnswer: "",
     currentAnswer: "",
@@ -25,7 +44,22 @@ class Question extends Component {
   // this.handleSubmit = this.handleSubmit.bind(this);
   // }
 
-  getRandomKanas(amount, include, exclude) {
+  askableKanas: Object;
+  askableKanaKeys: Array<string>;
+  askableRomajis: Array<string>;
+  previousQuestion: string | Array<string>;
+  previousAnswer: string | Array<string>;
+  stageProgress: number;
+  currentQuestion: string | Array<string>;
+  answerOptions: Array<string>;
+  allowedAnswers: string | Array<string>;
+  previousAllowedAnswers: string | Array<string>;
+
+  getRandomKanas(
+    amount: number,
+    include?: string | boolean,
+    exclude?: Array<string>
+  ): Array<string> {
     let randomizedKanas = this.askableKanaKeys.slice();
 
     if (exclude && exclude.length > 0) {
@@ -103,26 +137,28 @@ class Question extends Component {
     this.allowedAnswers = [];
     if (this.props.stage == 1 || this.props.stage == 3)
       this.allowedAnswers = findRomajisAtKanaKey(
-        this.currentQuestion,
+        this.currentQuestion[0],
         kanaDictionary
       );
     else if (this.props.stage == 2) this.allowedAnswers = this.currentQuestion;
     else if (this.props.stage == 4) {
       let tempAllowedAnswers = [];
-
-      this.currentQuestion.forEach((key) => {
-        tempAllowedAnswers.push(findRomajisAtKanaKey(key, kanaDictionary));
-      });
-
+      if (Array.isArray(this.currentQuestion)) {
+        this.currentQuestion.forEach((key) => {
+          tempAllowedAnswers.push(findRomajisAtKanaKey(key, kanaDictionary));
+        });
+      }
       cartesianProduct(tempAllowedAnswers).forEach((answer) => {
-        this.allowedAnswers.push(answer.join(""));
+        if (Array.isArray(this.allowedAnswers)) {
+          this.allowedAnswers.push(answer.join(""));
+        }
       });
     }
     // console.log(this.allowedAnswers);
   }
 
-  handleAnswer = (answer) => {
-    if (this.props.stage <= 2) document.activeElement.blur(); // reset answer button's :active
+  handleAnswer: (string) => void = (answer: string) => {
+    // if (this.props.stage <= 2) document.activeElement?.blur(); // reset answer button's :active
     this.previousQuestion = this.currentQuestion;
     this.setState({ previousQuestion: this.previousQuestion });
     this.previousAnswer = answer;

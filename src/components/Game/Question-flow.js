@@ -1,3 +1,5 @@
+// // @flow
+
 import React, { Component } from "react";
 import { kanaDictionary } from "../../data/kanaDictionary";
 import { quizSettings } from "../../data/quizSettings";

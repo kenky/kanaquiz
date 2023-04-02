@@ -80,7 +80,7 @@ export function getRandomFromArray(arr: []): [] {
 }
 
 export function cartesianProduct(
-  elements: Array<string>
+  elements: Array<Array<string>>
 ): Array<Array<string>> {
   if (!Array.isArray(elements)) {
     throw new TypeError();
