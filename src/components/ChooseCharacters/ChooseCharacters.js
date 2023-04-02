@@ -1,5 +1,4 @@
 // @flow
-// @format
 
 import React, { Component } from "react";
 import Switch from "react-toggle-switch";
