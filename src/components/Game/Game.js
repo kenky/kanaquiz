@@ -1,5 +1,4 @@
 // @flow
-// @format
 
 import React, { Component } from "react";
 import { kanaDictionary } from "../../data/kanaDictionary";
@@ -11,7 +10,7 @@ type Props = {
   isLocked: boolean,
   handleEndGame: () => void,
   lockStage: (number) => void,
-  stage?: number,
+  stage: number,
   stageUp: () => void,
 };
 
