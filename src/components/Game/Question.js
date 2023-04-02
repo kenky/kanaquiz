@@ -343,14 +343,21 @@ class Question extends Component<Props, State> {
   }
 }
 
-class AnswerButton extends Component {
-  getShowableAnswer() {
+type AnswerButtonProps = {
+  answer: string,
+  className: string,
+  answertype: string,
+  handleAnswer: (string) => void,
+};
+
+class AnswerButton extends Component<AnswerButtonProps> {
+  getShowableAnswer(): string {
     if (this.props.answertype == "romaji")
       return findRomajisAtKanaKey(this.props.answer, kanaDictionary)[0];
     else return this.props.answer;
   }
 
-  render() {
+  render(): React$Element<"button"> {
     return (
       <button
         className={this.props.className}
