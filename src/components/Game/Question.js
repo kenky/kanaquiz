@@ -57,8 +57,8 @@ class Question extends Component<Props, State> {
 
   getRandomKanas(
     amount: number,
-    include?: string | boolean,
-    exclude?: Array<string>
+    include?: string,
+    exclude?: string | Array<string>
   ): Array<string> {
     let randomizedKanas = this.askableKanaKeys.slice();
 
@@ -109,25 +109,16 @@ class Question extends Component<Props, State> {
 
   setNewQuestion() {
     if (this.props.stage != 4)
-      this.currentQuestion = this.getRandomKanas(
-        1,
-        false,
-        this.previousQuestion
-      );
+      this.currentQuestion = this.getRandomKanas(1, "", this.previousQuestion);
     else
-      this.currentQuestion = this.getRandomKanas(
-        3,
-        false,
-        this.previousQuestion
-      );
+      this.currentQuestion = this.getRandomKanas(3, "", this.previousQuestion);
     this.setState({ currentQuestion: this.currentQuestion });
     this.setAnswerOptions();
     this.setAllowedAnswers();
-    // console.log(this.currentQuestion);
   }
 
   setAnswerOptions() {
-    this.answerOptions = this.getRandomKanas(3, this.currentQuestion[0], false);
+    this.answerOptions = this.getRandomKanas(3, this.currentQuestion[0], "");
     this.setState({ answerOptions: this.answerOptions });
     // console.log(this.answerOptions);
   }
@@ -195,14 +186,17 @@ class Question extends Component<Props, State> {
           // let's merge the group to our askableKanas
           this.askableKanas = Object.assign(
             this.askableKanas,
+            // $FlowFixMe
             kanaDictionary[whichKana][groupName]["characters"]
           );
           Object.keys(
+            // $FlowFixMe
             kanaDictionary[whichKana][groupName]["characters"]
           ).forEach((key) => {
             // let's add all askable kana keys to array
             this.askableKanaKeys.push(key);
             this.askableRomajis.push(
+              // $FlowFixMe
               kanaDictionary[whichKana][groupName]["characters"][key][0]
             );
           });
@@ -212,12 +206,12 @@ class Question extends Component<Props, State> {
     // console.log(this.askableKanas);
   }
 
-  getAnswerType() {
+  getAnswerType(): string {
     if (this.props.stage == 2) return "kana";
     else return "romaji";
   }
 
-  getShowableQuestion() {
+  getShowableQuestion(): Array<string> {
     if (this.getAnswerType() == "kana")
       return findRomajisAtKanaKey(
         this.state.currentQuestion,
@@ -229,7 +223,7 @@ class Question extends Component<Props, State> {
   getPreviousResult() {
     let resultString = "";
     // console.log(this.previousAnswer);
-    if (this.previousQuestion == "")
+    if (this.previousQuestion === "")
       resultString = (
         <div className="previous-result none">
           Let's go! Which character is this?
