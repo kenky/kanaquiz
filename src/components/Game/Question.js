@@ -117,13 +117,14 @@ class Question extends Component<Props, State> {
   }
 
   setAnswerOptions() {
+    console.log("setAnswerOptions", this.currentQuestion);
     this.answerOptions = this.getRandomKanas(3, this.currentQuestion[0], "");
     this.setState({ answerOptions: this.answerOptions });
-    // console.log(this.answerOptions);
+    console.log("setAnswerOptions", this.answerOptions);
   }
 
   setAllowedAnswers() {
-    // console.log(this.currentQuestion);
+    console.log("setAllowedAnswers", this.currentQuestion);
     this.allowedAnswers = [];
     if (this.props.stage == 1 || this.props.stage == 3)
       this.allowedAnswers = findRomajisAtKanaKey(
@@ -144,16 +145,18 @@ class Question extends Component<Props, State> {
         }
       });
     }
-    // console.log(this.allowedAnswers);
+    console.log("setAllowedAnswers", this.allowedAnswers);
   }
 
   handleAnswer: (string) => void = (answer: string) => {
-    // if (this.props.stage <= 2) document.activeElement?.blur(); // reset answer button's :active
+    //$FlowFixMe
+    if (this.props.stage <= 2) document.activeElement.blur(); // reset answer button's :active
     this.previousQuestion = this.currentQuestion;
     this.setState({ previousQuestion: this.previousQuestion });
     this.previousAnswer = answer;
     this.setState({ previousAnswer: this.previousAnswer });
     this.previousAllowedAnswers = this.allowedAnswers;
+    //$FlowFixMe
     if (this.isInAllowedAnswers(this.previousAnswer))
       this.stageProgress = this.stageProgress + 1;
     else
@@ -219,8 +222,8 @@ class Question extends Component<Props, State> {
     else return this.state.currentQuestion;
   }
 
-  getPreviousResult() {
-    let resultString = "";
+  getPreviousResult(): React$Element<"div"> {
+    let resultString;
     // console.log(this.previousAnswer);
     if (this.previousQuestion === "")
       resultString = (
@@ -256,18 +259,29 @@ class Question extends Component<Props, State> {
     return resultString;
   }
 
-  isInAllowedAnswers(previousAnswer) {
-    // console.log(previousAnswer);
-    // console.log(this.allowedAnswers);
-    if (arrayContains(previousAnswer, this.previousAllowedAnswers)) return true;
+  isInAllowedAnswers(previousAnswer: string): boolean {
+    console.log("isInAllowedAnswers previousAnswer", previousAnswer);
+    console.log(
+      "isInAllowedAnswers previousAllowedAnswers",
+      this.previousAllowedAnswers
+    );
+
+    if (
+      Array.isArray(this.previousAllowedAnswers) &&
+      arrayContains(previousAnswer, this.previousAllowedAnswers)
+    )
+      return true;
     else return false;
   }
 
-  handleAnswerChange = (e) => {
-    this.setState({ currentAnswer: e.target.value.replace(/\s+/g, "") });
+  handleAnswerChange: (Event) => void = (e: Event) => {
+    var target = e.target;
+    if (target instanceof HTMLInputElement) {
+      this.setState({ currentAnswer: target.value.replace(/\s+/g, "") });
+    }
   };
 
-  handleSubmit = (e) => {
+  handleSubmit: (Event) => void = (e: Event) => {
     e.preventDefault();
     if (this.state.currentAnswer != "") {
       this.handleAnswer(this.state.currentAnswer.toLowerCase());
@@ -283,7 +297,7 @@ class Question extends Component<Props, State> {
     this.setNewQuestion();
   }
 
-  render() {
+  render(): React$Element<"div"> {
     let btnClass = "btn btn-default answer-button";
     if ("ontouchstart" in window) btnClass += " no-hover"; // disables hover effect on touch screens
     let stageProgressPercentage =

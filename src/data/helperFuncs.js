@@ -20,9 +20,10 @@ export function removeFromArray(
 }
 
 export function findRomajisAtKanaKey(
-  needle: string,
+  needle: string | Array<string>,
   kanaDictionary: Object
 ): Array<string> {
+  console.log("findRomajisAtKanaKey", needle);
   let romaji: Array<string> = [];
   Object.keys(kanaDictionary).map(function (whichKana) {
     // console.log(whichKana); // 'hiragana' or 'katakana'
@@ -30,7 +31,7 @@ export function findRomajisAtKanaKey(
       // console.log(groupName); // 'h_group1', ...
       Object.keys(kanaDictionary[whichKana][groupName]["characters"]).map(
         function (key) {
-          if (key == needle) {
+          if (key === needle || key === needle[0]) {
             // console.log(kanaDictionary[whichKana][groupName]['characters'][key]);
             romaji = kanaDictionary[whichKana][groupName]["characters"][key];
           }
