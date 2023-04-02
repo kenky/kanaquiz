@@ -1,3 +1,6 @@
+// @flow
+// @format
+
 import React, { Component } from "react";
 import { kanaDictionary } from "../../data/kanaDictionary";
 import { quizSettings } from "../../data/quizSettings";
@@ -9,9 +12,25 @@ import {
   cartesianProduct,
 } from "../../data/helperFuncs";
 import "./Question.scss";
+import { Z_NULL } from "zlib";
 
-class Question extends Component {
-  state = {
+type Props = {
+  decidedGroups: string,
+  stage: number,
+  allowedAnswers: () => {},
+};
+
+type State = {
+  previousQuestion: [],
+  previousAnswer: string,
+  currentAnswer: string,
+  currentQuestion: Array<string>,
+  answerOptions: Array<string>,
+  stageProgress: number,
+};
+
+class Question extends Component<Props, State> {
+  state: State = {
     previousQuestion: [],
     previousAnswer: "",
     currentAnswer: "",
@@ -24,38 +43,51 @@ class Question extends Component {
   // this.handleAnswerChange = this.handleAnswerChange.bind(this);
   // this.handleSubmit = this.handleSubmit.bind(this);
   // }
+  askableKanas: Object;
+  askableKanaKeys: Array<string>;
+  askableRomajis: Array<string>;
+  previousQuestion: Array<string>;
+  previousAnswer: Array<string>;
+  stageProgress: number;
+  currentQuestion: Array<string>;
+  answerOptions: Array<string>;
+  allowedAnswers: Array<string>;
 
-  getRandomKanas(amount, include, exclude) {
-    let randomizedKanas = this.askableKanaKeys.slice();
+  getRandomKanas(
+    amount: number,
+    include?: Array<string>,
+    exclude?: Array<string>
+  ): Array<string> {
+    let results: Array<string> = this.askableKanaKeys.slice();
 
     if (exclude && exclude.length > 0) {
       // we're excluding previous question when deciding a new question
-      randomizedKanas = removeFromArray(exclude, randomizedKanas);
+      results = removeFromArray(exclude, results);
     }
 
     if (include && include.length > 0) {
       // we arrive here when we're deciding answer options (included = currentQuestion)
 
       // remove included kana
-      randomizedKanas = removeFromArray(include, randomizedKanas);
-      shuffle(randomizedKanas);
+      results = removeFromArray(include, results);
+      shuffle(results);
 
       // cut the size to make looping quicker
-      randomizedKanas = randomizedKanas.slice(0, 20);
+      results = results.slice(0, 20);
 
       // let's remove kanas that have the same answer as included
       let searchFor = findRomajisAtKanaKey(include, kanaDictionary)[0];
-      randomizedKanas = randomizedKanas.filter((character) => {
+      results = results.filter((character) => {
         return searchFor != findRomajisAtKanaKey(character, kanaDictionary)[0];
       });
 
       // now let's remove "duplicate" kanas (if two kanas have same answers)
-      let tempRandomizedKanas = randomizedKanas.slice();
-      randomizedKanas = randomizedKanas.filter((r) => {
+      let tempresults = results.slice();
+      results = results.filter((r) => {
         let dupeFound = false;
         searchFor = findRomajisAtKanaKey(r, kanaDictionary)[0];
-        tempRandomizedKanas.shift();
-        tempRandomizedKanas.forEach((w) => {
+        tempresults.shift();
+        tempresults.forEach((w) => {
           if (findRomajisAtKanaKey(w, kanaDictionary)[0] == searchFor)
             dupeFound = true;
         });
@@ -63,29 +95,21 @@ class Question extends Component {
       });
 
       // alright, let's cut the array and add included to the end
-      randomizedKanas = randomizedKanas.slice(0, amount - 1); // -1 so we have room to add included
-      randomizedKanas.push(include);
-      shuffle(randomizedKanas);
+      results = results.slice(0, amount - 1); // -1 so we have room to add included
+      results.push(include);
+      shuffle(results);
     } else {
-      shuffle(randomizedKanas);
-      randomizedKanas = randomizedKanas.slice(0, amount);
+      shuffle(results);
+      results = results.slice(0, amount);
     }
-    return randomizedKanas;
+    return results;
   }
 
   setNewQuestion() {
     if (this.props.stage != 4)
-      this.currentQuestion = this.getRandomKanas(
-        1,
-        false,
-        this.previousQuestion
-      );
+      this.currentQuestion = this.getRandomKanas(1, [], this.previousQuestion);
     else
-      this.currentQuestion = this.getRandomKanas(
-        3,
-        false,
-        this.previousQuestion
-      );
+      this.currentQuestion = this.getRandomKanas(3, [], this.previousQuestion);
     this.setState({ currentQuestion: this.currentQuestion });
     this.setAnswerOptions();
     this.setAllowedAnswers();
@@ -93,7 +117,7 @@ class Question extends Component {
   }
 
   setAnswerOptions() {
-    this.answerOptions = this.getRandomKanas(3, this.currentQuestion[0], false);
+    this.answerOptions = this.getRandomKanas(3, this.currentQuestion[0], []);
     this.setState({ answerOptions: this.answerOptions });
     // console.log(this.answerOptions);
   }
@@ -121,8 +145,8 @@ class Question extends Component {
     // console.log(this.allowedAnswers);
   }
 
-  handleAnswer = (answer) => {
-    if (this.props.stage <= 2) document.activeElement.blur(); // reset answer button's :active
+  handleAnswer(answer: string) {
+    if (this.props.stage <= 2) document.activeElement?.blur(); // reset answer button's :active
     this.previousQuestion = this.currentQuestion;
     this.setState({ previousQuestion: this.previousQuestion });
     this.previousAnswer = answer;
@@ -141,7 +165,7 @@ class Question extends Component {
         this.props.handleStageUp();
       }, 300);
     } else this.setNewQuestion();
-  };
+  }
 
   initializeCharacters() {
     this.askableKanas = {};
