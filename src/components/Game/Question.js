@@ -15,7 +15,6 @@ import "./Question.scss";
 type Props = {
   decidedGroups: Array<string>,
   stage: number,
-  allowedAnswers: () => {},
   handleStageUp: () => void,
   isLocked: boolean,
 };
