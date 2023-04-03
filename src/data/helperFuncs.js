@@ -23,7 +23,7 @@ export function findRomajisAtKanaKey(
   needle: string | Array<string>,
   kanaDictionary: Object
 ): Array<string> {
-  console.log("findRomajisAtKanaKey", needle);
+  // console.log("findRomajisAtKanaKey", needle);
   let romaji: Array<string> = [];
   Object.keys(kanaDictionary).map(function (whichKana) {
     // console.log(whichKana); // 'hiragana' or 'katakana'

@@ -117,14 +117,14 @@ class Question extends Component<Props, State> {
   }
 
   setAnswerOptions() {
-    console.log("setAnswerOptions", this.currentQuestion);
+    // console.log("setAnswerOptions", this.currentQuestion);
     this.answerOptions = this.getRandomKanas(3, this.currentQuestion[0], "");
     this.setState({ answerOptions: this.answerOptions });
-    console.log("setAnswerOptions", this.answerOptions);
+    // console.log("setAnswerOptions", this.answerOptions);
   }
 
   setAllowedAnswers() {
-    console.log("setAllowedAnswers", this.currentQuestion);
+    // console.log("setAllowedAnswers", this.currentQuestion);
     this.allowedAnswers = [];
     if (this.props.stage == 1 || this.props.stage == 3)
       this.allowedAnswers = findRomajisAtKanaKey(
@@ -145,7 +145,7 @@ class Question extends Component<Props, State> {
         }
       });
     }
-    console.log("setAllowedAnswers", this.allowedAnswers);
+    // console.log("setAllowedAnswers", this.allowedAnswers);
   }
 
   handleAnswer: (string) => void = (answer: string) => {
@@ -260,11 +260,11 @@ class Question extends Component<Props, State> {
   }
 
   isInAllowedAnswers(previousAnswer: string): boolean {
-    console.log("isInAllowedAnswers previousAnswer", previousAnswer);
-    console.log(
-      "isInAllowedAnswers previousAllowedAnswers",
-      this.previousAllowedAnswers
-    );
+    // console.log("isInAllowedAnswers previousAnswer", previousAnswer);
+    // console.log(
+    //   "isInAllowedAnswers previousAllowedAnswers",
+    //   this.previousAllowedAnswers
+    // );
 
     if (
       Array.isArray(this.previousAllowedAnswers) &&
