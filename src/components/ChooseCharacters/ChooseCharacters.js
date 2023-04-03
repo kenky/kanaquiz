@@ -275,31 +275,19 @@ class ChooseCharacters extends Component<Props, State> {
                 )}
               </div>
               <div className="panel-footer text-center">
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectAll("hiragana")}
-                >
+                <a href="" onClick={() => this.selectAll("hiragana")}>
                   All
                 </a>{" "}
                 &nbsp;&middot;&nbsp;{" "}
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectNone("hiragana")}
-                >
+                <a href="" onClick={() => this.selectNone("hiragana")}>
                   None
                 </a>
                 &nbsp;&middot;&nbsp;{" "}
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectAll("hiragana", true)}
-                >
+                <a href="" onClick={() => this.selectAll("hiragana", true)}>
                   All alternative
                 </a>
                 &nbsp;&middot;&nbsp;{" "}
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectNone("hiragana", true)}
-                >
+                <a href="" onClick={() => this.selectNone("hiragana", true)}>
                   No alternative
                 </a>
               </div>
@@ -316,31 +304,19 @@ class ChooseCharacters extends Component<Props, State> {
                 )}
               </div>
               <div className="panel-footer text-center">
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectAll("katakana")}
-                >
+                <a href="" onClick={() => this.selectAll("katakana")}>
                   All
                 </a>{" "}
                 &nbsp;&middot;&nbsp;{" "}
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectNone("katakana")}
-                >
+                <a href="" onClick={() => this.selectNone("katakana")}>
                   None
                 </a>
                 &nbsp;&middot;&nbsp;{" "}
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectAll("katakana", true)}
-                >
+                <a href="" onClick={() => this.selectAll("katakana", true)}>
                   All alternative
                 </a>
                 &nbsp;&middot;&nbsp;{" "}
-                <a
-                  href="javascript:;"
-                  onClick={() => this.selectNone("katakana", true)}
-                >
+                <a href="" onClick={() => this.selectNone("katakana", true)}>
                   No alternative
                 </a>
               </div>
