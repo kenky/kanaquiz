@@ -4,7 +4,7 @@
   "description": "Application for studying hiragana & katakana characters.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "react-scripts test",
     "start": "webpack-dev-server --open --env.mode development --host 0.0.0.0 --config webpack.config.js",
     "mobile": "webpack-dev-server --open --env.mode development --host 0.0.0.0 --public 192.168.1.8:8080",
     "build": "webpack --env.mode production --config webpack.config.prod.js",
@@ -56,6 +56,7 @@
     "prop-types": "^15.6.2",
     "react": "^16.6.3",
     "react-dom": "^16.6.3",
+    "react-scripts": "^5.0.1",
     "react-toggle-switch": "^3.0.4",
     "react-transition-group": "^2.5.0",
     "serialize-javascript": "^2.1.1",
