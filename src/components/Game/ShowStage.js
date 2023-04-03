@@ -2,6 +2,7 @@
 
 import React, { Component } from "react";
 import "./ShowStage.scss";
+// $FlowFixMe
 import { TransitionGroup, CSSTransition } from "react-transition-group";
 
 type Props = {

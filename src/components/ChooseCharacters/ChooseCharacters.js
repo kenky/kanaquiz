@@ -1,6 +1,7 @@
 // @flow
 
 import React, { Component } from "react";
+// $FlowFixMe
 import Switch from "react-toggle-switch";
 import { kanaDictionary } from "../../data/kanaDictionary";
 import "./ChooseCharacters.scss";

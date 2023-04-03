@@ -59,7 +59,7 @@
     "react-dom": "^18.2.0",
     "react-scripts": "^5.0.1",
     "react-toggle-switch": "^3.0.4",
-    "react-transition-group": "^2.5.0",
+    "react-transition-group": "^2.9.0",
     "serialize-javascript": "^2.1.1",
     "workbox-window": "^4.3.1"
   },

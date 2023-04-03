@@ -9,7 +9,7 @@ type Props = {
   decidedGroups: Array<string>,
   isLocked: boolean,
   handleEndGame: () => void,
-  lockStage: (number) => void,
+  lockStage: (number, ?boolean) => void,
   stage: number,
   stageUp: () => void,
 };

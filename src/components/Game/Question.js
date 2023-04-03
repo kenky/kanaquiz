@@ -215,6 +215,7 @@ class Question extends Component<Props, State> {
 
   getShowableQuestion(): Array<string> {
     if (this.getAnswerType() == "kana")
+      // $FlowFixMe
       return findRomajisAtKanaKey(
         this.state.currentQuestion,
         kanaDictionary
@@ -235,10 +236,11 @@ class Question extends Component<Props, State> {
       let rightAnswer =
         (this.props.stage == 2
           ? findRomajisAtKanaKey(this.previousQuestion, kanaDictionary)[0]
-          : this.previousQuestion.join("")) +
+          : // $FlowFixMe
+            this.previousQuestion.join("")) +
         " = " +
         this.previousAllowedAnswers[0];
-
+      // $FlowFixMe
       if (this.isInAllowedAnswers(this.previousAnswer))
         resultString = (
           <div className="previous-result correct" title="Correct answer!">
