@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import React, { Component, useEffect, useState } from "react";
 import { kanaDictionary } from "../../data/kanaDictionary";
 import ShowStage from "./ShowStage";
 import Question from "./Question";
@@ -14,53 +14,46 @@ type Props = {
   stageUp: () => void,
 };
 
-type State = {
-  showScreen: string,
-};
+function Game(props: Props): React$Element<"div"> {
+  const [showScreen, setShowScreen] = useState("");
+  useEffect(() => {
+    setShowScreen("stage");
+  }, []);
 
-class Game extends Component<Props, State> {
-  state: State = { showScreen: "" };
-
-  componentWillMount() {
-    this.setState({ showScreen: "stage" });
-  }
-
-  stageUp: () => void = () => {
-    this.props.stageUp();
-    this.setState({ showScreen: "stage" });
+  const stageUp: () => void = () => {
+    props.stageUp();
+    setShowScreen("stage");
   };
 
-  lockStage: (number) => void = (stage: number) => {
-    this.setState({ showScreen: "question" });
-    this.props.lockStage(stage);
+  const lockStage: (number) => void = (stage: number) => {
+    setShowScreen("question");
+    props.lockStage(stage);
   };
 
-  showQuestion: () => void = () => {
-    this.setState({ showScreen: "question" });
+  const showQuestion: () => void = () => {
+    setShowScreen("question");
   };
 
-  render(): React$Element<"div"> {
-    return (
-      <div>
-        {this.state.showScreen === "stage" && (
-          <ShowStage
-            lockStage={this.lockStage}
-            handleShowQuestion={this.showQuestion}
-            handleEndGame={this.props.handleEndGame}
-            stage={this.props.stage}
-          />
-        )}
-        {this.state.showScreen === "question" && (
-          <Question
-            isLocked={this.props.isLocked}
-            handleStageUp={this.stageUp}
-            stage={this.props.stage}
-            decidedGroups={this.props.decidedGroups}
-          />
-        )}
-      </div>
-    );
-  }
+  return (
+    <div>
+      {showScreen === "stage" && (
+        <ShowStage
+          lockStage={lockStage}
+          handleShowQuestion={showQuestion}
+          handleEndGame={props.handleEndGame}
+          stage={props.stage}
+        />
+      )}
+      {showScreen === "question" && (
+        <Question
+          isLocked={props.isLocked}
+          handleStageUp={stageUp}
+          stage={props.stage}
+          decidedGroups={props.decidedGroups}
+        />
+      )}
+    </div>
+  );
 }
 
 export default Game;
