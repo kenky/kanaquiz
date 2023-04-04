@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import React, { Component, useEffect, useRef, useState } from "react";
 import "./ShowStage.scss";
 // $FlowFixMe
 import { TransitionGroup, CSSTransition } from "react-transition-group";
@@ -15,42 +15,42 @@ type State = {
   show: boolean,
   entered: boolean,
 };
-class ShowStage extends Component<Props, State> {
-  state: State = {
+
+function ShowStage(props: Props): React$Element<"div"> {
+  const initState: State = {
     show: false,
     entered: false,
   };
-  timeoutID: TimeoutID;
-  componentDidMount() {
-    this.setState({ show: true });
-    if (this.props.stage <= 4)
-      this.timeoutID = setTimeout(this.removeStage, 1200); // how soon we start fading out (1500)
+  const [state, setState] = useState(initState);
+  const timeoutID = useRef<?TimeoutID>(null);
+  useEffect(() => {
+    setState({ ...state, show: true });
+    if (props.stage <= 4) timeoutID.current = setTimeout(removeStage, 1200); // how soon we start fading out (1500)
     window.scrollTo(0, 0);
-  }
+    return () => {
+      clearTimeout(timeoutID.current);
+    };
+  }, []);
 
-  componentWillUnmount() {
-    clearTimeout(this.timeoutID);
-  }
-
-  removeStage: () => void = () => {
-    this.setState({ show: false });
-    clearTimeout(this.timeoutID);
-    this.timeoutID = setTimeout(this.props.handleShowQuestion, 1000); // how soon we go to question (1000)
+  const removeStage: () => void = () => {
+    setState({ ...state, show: false });
+    clearTimeout(timeoutID.current);
+    timeoutID.current = setTimeout(props.handleShowQuestion, 1000); // how soon we go to question (1000)
   };
 
-  showStage(): React$Element<"div"> {
+  function showStage(): React$Element<"div"> {
     let stageDescription;
     let stageSecondaryDescription;
 
-    if (this.props.stage == 1) stageDescription = "Choose one";
-    else if (this.props.stage == 2) {
+    if (props.stage == 1) stageDescription = "Choose one";
+    else if (props.stage == 2) {
       stageDescription = "Choose one";
       stageSecondaryDescription = "Reverse";
-    } else if (this.props.stage == 3) stageDescription = "Write the answer";
-    else if (this.props.stage == 4) {
+    } else if (props.stage == 3) stageDescription = "Write the answer";
+    else if (props.stage == 4) {
       stageDescription = "Write the answer";
       stageSecondaryDescription = "Three at once";
-    } else if (this.props.stage == 5)
+    } else if (props.stage == 5)
       return (
         <div className="text-center show-end">
           <h1>Congratulations!</h1>
@@ -59,7 +59,7 @@ class ShowStage extends Component<Props, State> {
           <p>
             <button
               className="btn btn-danger keep-playing"
-              onClick={() => this.props.lockStage(4)}
+              onClick={() => props.lockStage(4)}
             >
               Keep playing
             </button>
@@ -67,7 +67,7 @@ class ShowStage extends Component<Props, State> {
           <p>
             <button
               className="btn btn-danger back-to-menu"
-              onClick={this.props.handleEndGame}
+              onClick={props.handleEndGame}
             >
               Back to menu
             </button>
@@ -77,28 +77,25 @@ class ShowStage extends Component<Props, State> {
 
     return (
       <div className="text-center show-stage">
-        <h1>Stage {this.props.stage}</h1>
+        <h1>Stage {props.stage}</h1>
         <h3>{stageDescription}</h3>
         {stageSecondaryDescription ? <h4>{stageSecondaryDescription}</h4> : ""}
       </div>
     );
   }
 
-  render(): React$Element<"div"> {
-    const content = this.showStage();
-    const { show } = this.state;
-
-    return (
-      <CSSTransition
-        classNames="stage"
-        timeout={{ enter: 900, exit: 900 }}
-        in={show}
-        unmountOnExit
-      >
-        {(state) => content}
-      </CSSTransition>
-    );
-  }
+  const content = showStage();
+  const { show } = state;
+  return (
+    <CSSTransition
+      classNames="stage"
+      timeout={{ enter: 900, exit: 900 }}
+      in={show}
+      unmountOnExit
+    >
+      {(state) => content}
+    </CSSTransition>
+  );
 }
 
 export default ShowStage;
