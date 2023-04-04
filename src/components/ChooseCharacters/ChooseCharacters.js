@@ -1,6 +1,6 @@
 // @flow
 
-import React, { Component } from "react";
+import React, { Component, useEffect, useRef, useState } from "react";
 // $FlowFixMe
 import Switch from "react-toggle-switch";
 import { kanaDictionary } from "../../data/kanaDictionary";
@@ -23,106 +23,108 @@ type State = {
   startIsVisible: boolean,
 };
 
-class ChooseCharacters extends Component<Props, State> {
-  state: State = {
+function ChooseCharacters(props: Props): React$Element<"div"> {
+  const initState: State = {
     errMsg: "",
-    selectedGroups: this.props.selectedGroups,
+    selectedGroups: props.selectedGroups,
     showAlternatives: [],
     showSimilars: [],
     startIsVisible: true,
   };
+  const [state, setState] = useState(initState);
+  const startRef = useRef();
 
-  componentDidMount() {
-    this.testIsStartVisible();
-    window.addEventListener("resize", this.testIsStartVisible);
-    window.addEventListener("scroll", this.testIsStartVisible);
-  }
+  useEffect(() => {
+    if (startRef) {
+      testIsStartVisible();
+      window.addEventListener("resize", testIsStartVisible);
+      window.addEventListener("scroll", testIsStartVisible);
+      return () => {
+        window.removeEventListener("resize", testIsStartVisible);
+        window.removeEventListener("scroll", testIsStartVisible);
+      };
+    } else {
+      testIsStartVisible();
+    }
+  }, []);
 
-  componentWillUnmount() {
-    window.removeEventListener("resize", this.testIsStartVisible);
-    window.removeEventListener("scroll", this.testIsStartVisible);
-  }
-
-  componentDidUpdate(prevProps: Props, prevState: State) {
-    this.testIsStartVisible();
-  }
-
-  testIsStartVisible: () => void = () => {
+  const testIsStartVisible: () => void = () => {
     // $FlowFixMe
-    if (this.startRef) {
+    if (startRef.current) {
       // $FlowFixMe
-      const rect = this.startRef.getBoundingClientRect();
-      if (rect.y > window.innerHeight && this.state.startIsVisible)
-        this.setState({ startIsVisible: false });
-      else if (rect.y <= window.innerHeight && !this.state.startIsVisible)
-        this.setState({ startIsVisible: true });
+      const rect = startRef.current.getBoundingClientRect();
+      if (rect.y > window.innerHeight && state.startIsVisible)
+        setState({ ...state, startIsVisible: false });
+      else if (rect.y <= window.innerHeight && !state.startIsVisible)
+        setState({ ...state, startIsVisible: true });
     }
   };
 
-  scrollToStart() {
+  function scrollToStart() {
     // $FlowFixMe
-    if (this.startRef) {
+    if (startRef.current) {
       // $FlowFixMe
-      const rect = this.startRef.getBoundingClientRect();
+      const rect = startRef.current.getBoundingClientRect();
       const absTop = rect.top + window.pageYOffset;
       const scrollPos = absTop - window.innerHeight + 50;
       window.scrollTo(0, scrollPos > 0 ? scrollPos : 0);
     }
   }
 
-  getIndex(groupName: string): number {
-    return this.state.selectedGroups.indexOf(groupName);
+  function getIndex(groupName: string): number {
+    return state.selectedGroups.indexOf(groupName);
   }
 
-  isSelected(groupName: string): boolean {
-    return this.getIndex(groupName) > -1 ? true : false;
+  function isSelected(groupName: string): boolean {
+    return getIndex(groupName) > -1 ? true : false;
   }
 
-  removeSelect(groupName: string) {
-    if (this.getIndex(groupName) < 0) return;
-    let newSelectedGroups = this.state.selectedGroups.slice();
-    newSelectedGroups.splice(this.getIndex(groupName), 1);
-    this.setState({ selectedGroups: newSelectedGroups });
+  function removeSelect(groupName: string) {
+    if (getIndex(groupName) < 0) return;
+    let newSelectedGroups = state.selectedGroups.slice();
+    newSelectedGroups.splice(getIndex(groupName), 1);
+    setState({ ...state, selectedGroups: newSelectedGroups });
   }
 
-  addSelect(groupName: string) {
-    this.setState({
+  function addSelect(groupName: string) {
+    setState({
+      ...state,
       errMsg: "",
-      selectedGroups: this.state.selectedGroups.concat(groupName),
+      selectedGroups: state.selectedGroups.concat(groupName),
     });
   }
 
-  toggleSelect: (string) => void = (groupName: string) => {
-    if (this.getIndex(groupName) > -1) this.removeSelect(groupName);
-    else this.addSelect(groupName);
+  const toggleSelect: (string) => void = (groupName: string) => {
+    if (getIndex(groupName) > -1) removeSelect(groupName);
+    else addSelect(groupName);
   };
 
-  selectAll(
+  function selectAll(
     whichKana: string,
     altOnly: boolean = false,
     similarOnly: boolean = false
   ) {
     const thisKana = kanaDictionary[whichKana];
-    let newSelectedGroups = this.state.selectedGroups.slice();
+    let newSelectedGroups = state.selectedGroups.slice();
     Object.keys(thisKana).forEach((groupName) => {
       if (
-        !this.isSelected(groupName) &&
+        !isSelected(groupName) &&
         ((altOnly && groupName.endsWith("_a")) ||
           (similarOnly && groupName.endsWith("_s")) ||
           (!altOnly && !similarOnly))
       )
         newSelectedGroups.push(groupName);
     });
-    this.setState({ errMsg: "", selectedGroups: newSelectedGroups });
+    setState({ ...state, errMsg: "", selectedGroups: newSelectedGroups });
   }
 
-  selectNone(
+  function selectNone(
     whichKana: string,
     altOnly: boolean = false,
     similarOnly: boolean = false
   ) {
     let newSelectedGroups = [];
-    this.state.selectedGroups.forEach((groupName) => {
+    state.selectedGroups.forEach((groupName) => {
       let mustBeRemoved = false;
       Object.keys(kanaDictionary[whichKana]).forEach((removableGroupName) => {
         if (
@@ -135,21 +137,21 @@ class ChooseCharacters extends Component<Props, State> {
       });
       if (!mustBeRemoved) newSelectedGroups.push(groupName);
     });
-    this.setState({ selectedGroups: newSelectedGroups });
+    setState({ ...state, selectedGroups: newSelectedGroups });
   }
 
-  toggleAlternative(whichKana: string, postfix: string) {
+  function toggleAlternative(whichKana: string, postfix: string) {
     let show: Array<string> =
-      postfix == "_a" ? this.state.showAlternatives : this.state.showSimilars;
+      postfix == "_a" ? state.showAlternatives : state.showSimilars;
     const idx = show.indexOf(whichKana);
     if (idx >= 0) show.splice(idx, 1);
     else show.push(whichKana);
-    if (postfix == "_a") this.setState({ showAlternatives: show });
-    if (postfix == "_s") this.setState({ showSimilars: show });
+    if (postfix == "_a") setState({ ...state, showAlternatives: show });
+    if (postfix == "_s") setState({ ...state, showSimilars: show });
   }
 
-  getSelectedAlternatives(whichKana: string, postfix: string): number {
-    return this.state.selectedGroups.filter((groupName) => {
+  function getSelectedAlternatives(whichKana: string, postfix: string): number {
+    return state.selectedGroups.filter((groupName) => {
       return (
         groupName.startsWith(whichKana == "hiragana" ? "h_" : "k_") &&
         groupName.endsWith(postfix)
@@ -157,13 +159,13 @@ class ChooseCharacters extends Component<Props, State> {
     }).length;
   }
 
-  getAmountOfAlternatives(whichKana: string, postfix: string): number {
+  function getAmountOfAlternatives(whichKana: string, postfix: string): number {
     return Object.keys(kanaDictionary[whichKana]).filter((groupName) => {
       return groupName.endsWith(postfix);
     }).length;
   }
 
-  alternativeToggleRow(
+  function alternativeToggleRow(
     whichKana: string,
     postfix: string,
     show: boolean
@@ -171,11 +173,11 @@ class ChooseCharacters extends Component<Props, State> {
     let checkBtn = "glyphicon glyphicon-small glyphicon-";
     let status;
     if (
-      this.getSelectedAlternatives(whichKana, postfix) >=
-      this.getAmountOfAlternatives(whichKana, postfix)
+      getSelectedAlternatives(whichKana, postfix) >=
+      getAmountOfAlternatives(whichKana, postfix)
     )
       status = "check";
-    else if (this.getSelectedAlternatives(whichKana, postfix) > 0)
+    else if (getSelectedAlternatives(whichKana, postfix) > 0)
       status = "check half";
     else status = "unchecked";
     checkBtn += status;
@@ -183,16 +185,16 @@ class ChooseCharacters extends Component<Props, State> {
     return (
       <div
         key={"alt_toggle_" + whichKana + postfix}
-        onClick={() => this.toggleAlternative(whichKana, postfix)}
+        onClick={() => toggleAlternative(whichKana, postfix)}
         className="choose-row"
       >
         <span
           className={checkBtn}
           onClick={(e) => {
             if (status == "check")
-              this.selectNone(whichKana, postfix == "_a", postfix == "_s");
+              selectNone(whichKana, postfix == "_a", postfix == "_s");
             else if (status == "check half" || status == "unchecked")
-              this.selectAll(whichKana, postfix == "_a", postfix == "_s");
+              selectAll(whichKana, postfix == "_a", postfix == "_s");
             e.stopPropagation();
           }}
         ></span>
@@ -208,7 +210,7 @@ class ChooseCharacters extends Component<Props, State> {
     );
   }
 
-  showGroupRows(
+  function showGroupRows(
     whichKana: string,
     showAlternatives: boolean,
     showSimilars: boolean = false
@@ -217,9 +219,9 @@ class ChooseCharacters extends Component<Props, State> {
     let rows = [];
     Object.keys(thisKana).forEach((groupName, idx) => {
       if (groupName == "h_group11_a" || groupName == "k_group13_a")
-        rows.push(this.alternativeToggleRow(whichKana, "_a", showAlternatives));
+        rows.push(alternativeToggleRow(whichKana, "_a", showAlternatives));
       if (groupName == "k_group11_s")
-        rows.push(this.alternativeToggleRow(whichKana, "_s", showSimilars));
+        rows.push(alternativeToggleRow(whichKana, "_s", showSimilars));
 
       if (
         (!groupName.endsWith("a") || showAlternatives) &&
@@ -230,9 +232,9 @@ class ChooseCharacters extends Component<Props, State> {
           <CharacterGroup
             key={idx}
             groupName={groupName}
-            selected={this.isSelected(groupName)}
+            selected={isSelected(groupName)}
             characters={thisKana[groupName].characters}
-            handleToggleSelect={this.toggleSelect}
+            handleToggleSelect={toggleSelect}
           />
         );
       }
@@ -241,134 +243,129 @@ class ChooseCharacters extends Component<Props, State> {
     return rows;
   }
 
-  startGame() {
-    if (this.state.selectedGroups.length < 1) {
-      this.setState({ errMsg: "Choose at least one group!" });
+  function startGame() {
+    if (state.selectedGroups.length < 1) {
+      setState({ ...state, errMsg: "Choose at least one group!" });
       return;
     }
-    this.props.handleStartGame(this.state.selectedGroups);
+    props.handleStartGame(state.selectedGroups);
   }
 
-  render(): React$Element<"div"> {
-    return (
-      <div className="choose-characters">
-        <div className="row">
-          <div className="col-xs-12">
-            <div className="panel panel-default">
-              <div className="panel-body welcome">
-                <h4>Welcome to Kana Pro!</h4>
-                <p>
-                  Please choose the groups of characters that you'd like to be
-                  studying.
-                </p>
-              </div>
+  return (
+    <div className="choose-characters">
+      <div className="row">
+        <div className="col-xs-12">
+          <div className="panel panel-default">
+            <div className="panel-body welcome">
+              <h4>Welcome to Kana Pro!</h4>
+              <p>
+                Please choose the groups of characters that you'd like to be
+                studying.
+              </p>
             </div>
-          </div>
-        </div>
-        <div className="row">
-          <div className="col-sm-6">
-            <div className="panel panel-default">
-              <div className="panel-heading">Hiragana · ひらがな</div>
-              <div className="panel-body selection-areas">
-                {this.showGroupRows(
-                  "hiragana",
-                  this.state.showAlternatives.indexOf("hiragana") >= 0
-                )}
-              </div>
-              <div className="panel-footer text-center">
-                <a href="" onClick={() => this.selectAll("hiragana")}>
-                  All
-                </a>{" "}
-                &nbsp;&middot;&nbsp;{" "}
-                <a href="" onClick={() => this.selectNone("hiragana")}>
-                  None
-                </a>
-                &nbsp;&middot;&nbsp;{" "}
-                <a href="" onClick={() => this.selectAll("hiragana", true)}>
-                  All alternative
-                </a>
-                &nbsp;&middot;&nbsp;{" "}
-                <a href="" onClick={() => this.selectNone("hiragana", true)}>
-                  No alternative
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="col-sm-6">
-            <div className="panel panel-default">
-              <div className="panel-heading">Katakana · カタカナ</div>
-              <div className="panel-body selection-areas">
-                {this.showGroupRows(
-                  "katakana",
-                  this.state.showAlternatives.indexOf("katakana") >= 0,
-                  this.state.showSimilars.indexOf("katakana") >= 0
-                )}
-              </div>
-              <div className="panel-footer text-center">
-                <a href="" onClick={() => this.selectAll("katakana")}>
-                  All
-                </a>{" "}
-                &nbsp;&middot;&nbsp;{" "}
-                <a href="" onClick={() => this.selectNone("katakana")}>
-                  None
-                </a>
-                &nbsp;&middot;&nbsp;{" "}
-                <a href="" onClick={() => this.selectAll("katakana", true)}>
-                  All alternative
-                </a>
-                &nbsp;&middot;&nbsp;{" "}
-                <a href="" onClick={() => this.selectNone("katakana", true)}>
-                  No alternative
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="col-sm-3 col-xs-12 pull-right">
-            <span className="pull-right lock">
-              Lock to stage &nbsp;
-              {this.props.isLocked && (
-                <input
-                  className="stage-choice"
-                  type="number"
-                  min="1"
-                  max="4"
-                  maxLength="1"
-                  size="1"
-                  onChange={(e) => this.props.lockStage(e.target.value, true)}
-                  value={this.props.stage}
-                />
-              )}
-              <Switch
-                onClick={() => this.props.lockStage(1)}
-                on={this.props.isLocked}
-              />
-            </span>
-          </div>
-          <div className="col-sm-offset-3 col-sm-6 col-xs-12 text-center">
-            {this.state.errMsg != "" && (
-              <div className="error-message">{this.state.errMsg}</div>
-            )}
-            <button
-              // $FlowFixMe
-              ref={(c) => (this.startRef = c)}
-              className="btn btn-danger startgame-button"
-              onClick={() => this.startGame()}
-            >
-              Start the Quiz!
-            </button>
-          </div>
-          <div
-            className="down-arrow"
-            style={{ display: this.state.startIsVisible ? "none" : "block" }}
-            // $FlowFixMe
-            onClick={(e) => this.scrollToStart(e)}
-          >
-            Start
           </div>
         </div>
       </div>
-    );
-  }
+      <div className="row">
+        <div className="col-sm-6">
+          <div className="panel panel-default">
+            <div className="panel-heading">Hiragana · ひらがな</div>
+            <div className="panel-body selection-areas">
+              {showGroupRows(
+                "hiragana",
+                state.showAlternatives.indexOf("hiragana") >= 0
+              )}
+            </div>
+            <div className="panel-footer text-center">
+              <a href="" onClick={() => selectAll("hiragana")}>
+                All
+              </a>{" "}
+              &nbsp;&middot;&nbsp;{" "}
+              <a href="" onClick={() => selectNone("hiragana")}>
+                None
+              </a>
+              &nbsp;&middot;&nbsp;{" "}
+              <a href="" onClick={() => selectAll("hiragana", true)}>
+                All alternative
+              </a>
+              &nbsp;&middot;&nbsp;{" "}
+              <a href="" onClick={() => selectNone("hiragana", true)}>
+                No alternative
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="col-sm-6">
+          <div className="panel panel-default">
+            <div className="panel-heading">Katakana · カタカナ</div>
+            <div className="panel-body selection-areas">
+              {showGroupRows(
+                "katakana",
+                state.showAlternatives.indexOf("katakana") >= 0,
+                state.showSimilars.indexOf("katakana") >= 0
+              )}
+            </div>
+            <div className="panel-footer text-center">
+              <a href="" onClick={() => selectAll("katakana")}>
+                All
+              </a>{" "}
+              &nbsp;&middot;&nbsp;{" "}
+              <a href="" onClick={() => selectNone("katakana")}>
+                None
+              </a>
+              &nbsp;&middot;&nbsp;{" "}
+              <a href="" onClick={() => selectAll("katakana", true)}>
+                All alternative
+              </a>
+              &nbsp;&middot;&nbsp;{" "}
+              <a href="" onClick={() => selectNone("katakana", true)}>
+                No alternative
+              </a>
+            </div>
+          </div>
+        </div>
+        <div className="col-sm-3 col-xs-12 pull-right">
+          <span className="pull-right lock">
+            Lock to stage &nbsp;
+            {props.isLocked && (
+              <input
+                className="stage-choice"
+                type="number"
+                min="1"
+                max="4"
+                maxLength="1"
+                size="1"
+                onChange={(e) => props.lockStage(e.target.value, true)}
+                value={props.stage}
+              />
+            )}
+            <Switch onClick={() => props.lockStage(1)} on={props.isLocked} />
+          </span>
+        </div>
+        <div className="col-sm-offset-3 col-sm-6 col-xs-12 text-center">
+          {state.errMsg != "" && (
+            <div className="error-message">{state.errMsg}</div>
+          )}
+          <button
+            // $FlowFixMe
+            ref={(c) => (startRef.current = c)}
+            className="btn btn-danger startgame-button"
+            onClick={() => startGame()}
+          >
+            Start the Quiz!
+          </button>
+        </div>
+        <div
+          className="down-arrow"
+          style={{ display: state.startIsVisible ? "none" : "block" }}
+          // $FlowFixMe
+          onClick={(e) => scrollToStart(e)}
+        >
+          Start
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export default ChooseCharacters;
